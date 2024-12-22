@@ -1,0 +1,19 @@
+home_automation/
+│
+├── app.py
+├── templates/
+│   ├── base.html
+│   ├── index.html
+│   ├── sensors.html
+│   ├── settings.html
+│
+├── static/
+│   ├── css/
+│   │   └── styles.css
+│   └── js/
+│       └── scripts.js
+│
+├── data/
+│   └── mock_data.json
+│
+└── requirements.txt

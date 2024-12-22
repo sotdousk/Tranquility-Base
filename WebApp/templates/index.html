@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Welcome to the Home Automation Dashboard</h1>
+    <p>View and control your home automation system from here.</p>
+
+    {% if data.items() %}
+    <!-- Cards container for real-time updates -->
+    <div id="cards-container" class="row">
+        {% for node, status in data.items() %}
+        <div class="col-12 col-sm-6 col-md-4">
+            <div id="node-card-{{ node }}" class="card mb-3 shadow-sm {% if status['alarm'] %}border-success{% else %}border-danger{% endif %}">
+                <div class="card-body">
+                    <h5 class="card-title" aria-label="Node Name">{{ node }}</h5>
+                    <p class="alarm-status">Alarm:
+                        <span class="{{ 'text-success' if status['alarm'] else 'text-danger' }}">
+                            {{ 'Enabled' if status['alarm'] else 'Disabled' }}
+                        </span>
+                    </p>
+                    <p class="temperature">Temperature: {{ status['sensors'].get('temperature', 'N/A') }} ℃</p>
+                    <p class="door">Door: {{ status['sensors'].get('door', 'Unknown') }}</p>
+                    <p class="motion">Motion: {{ status['sensors'].get('motion', 'Unknown') }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-muted">No nodes available to display. Please check your connections.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

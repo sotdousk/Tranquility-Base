@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Sensors{% endblock %}
+
+{% block content %}
+<h1>Sensor Management</h1>
+<p>Manage and monitor your sensor nodes here.</p>
+
+<div>
+    <!-- Toggle All Alarms -->
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" class="form-check-input" id="toggle-all-alarms"
+               {% if all_alarms_enabled %}checked{% endif %}
+               onchange="toggleAllAlarms(this.checked)">
+        <label class="form-check-label" for="toggle-all-alarms">Enable All Alarms</label>
+    </div>
+
+    <!-- Container for Node Cards -->
+    <div id="cards-container">
+        {% for node, status in data.items() %}
+        <div class="card mb-3 {% if status['alarm'] %}border-success{% else %}border-danger{% endif %}" id="node-card-{{ node }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ node }}</h5>
+                <p>Alarm Status: {{ 'Enabled' if status['alarm'] else 'Disabled' }}</p>
+                <p class="temperature">Temperature: {{ status['sensors'].get('temperature', 'N/A') }} ℃</p>
+                <p class="door">Door: {{ status['sensors'].get('door', 'Unknown') }}</p>
+                <p class="motion">Motion: {{ status['sensors'].get('motion', 'Unknown') }}</p>
+                <!-- Node-Specific Alarm Toggle -->
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" id="alarm-toggle-{{ node }}"
+                           {% if status['alarm'] %}checked{% endif %}
+                           onchange="toggleAlarm('{{ node }}')">
+                    <label class="form-check-label" for="alarm-toggle-{{ node }}"
+                           title="Toggle the alarm status for this node.">
+                           Enable Alarm
+                    </label>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

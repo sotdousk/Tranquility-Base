@@ -1,0 +1,3 @@
+Flask
+paho
+flask_socketio
