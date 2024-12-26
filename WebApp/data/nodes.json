@@ -1,22 +1,18 @@
 {
     "Node1": {
-        "alarm": true,
+        "alarm": false,
         "sensors": {
-            "temperature": 16.48,
+            "temperature": 15.92,
             "door": "Closed",
             "motion": "No Motion"
         }
     },
     "Node2": {
-        "alarm": true,
+        "alarm": false,
         "sensors": {
             "temperature": 23.1,
             "door": "Open",
             "motion": "Motion Detected"
         }
-    },
-    "sensors": {
-        "alarm": false,
-        "sensors": {}
     }
 }

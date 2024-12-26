@@ -143,48 +143,57 @@ function initializeSensors() {
     const socket = io();
     console.log("After socket definition...");
 
-    // Handle node updates
-    socket.on('update_node', (payload) => {
+    // Alarm message and reset button
+    const alarmMessage = document.getElementById("alarm-message");
+    const resetAlarmButton = document.getElementById("reset-alarm");
+
+    if (!resetAlarmButton) {
+        console.error("Reset alarm button (#reset-alarm) not found in the DOM!");
+        return;
+    }
+
+    // Handle alarm status updates
+    socket.on("alarm_status", (data) => {
+        console.log("Alarm status update received:", data);
+
+        if (data.status.startsWith("Intrusion detected")) {
+            alarmMessage.className = "alert text-center alert-danger";
+            document.getElementById("alarm-text").textContent = data.status;
+
+            // Show the reset button
+            resetAlarmButton.style.display = "inline-block";
+        } else {
+            alarmMessage.className = "alert text-center alert-success";
+            document.getElementById("alarm-text").textContent = data.status;
+
+            // Hide the reset button
+            resetAlarmButton.style.display = "none";
+        }
+    });
+
+    // Reset alarm button event listener
+    resetAlarmButton.addEventListener("click", () => {
+        console.log("Reset alarm clicked!");
+
+        // Notify the server to reset the alarm
+        socket.emit("reset_alarm");
+
+        // Update the UI immediately after clicking
+        alarmMessage.className = "alert text-center alert-success"; // Change to green
+        document.getElementById("alarm-text").textContent = "Everything is ok..."; // Update the text
+        resetAlarmButton.style.display = "none"; // Hide the button
+    });
+
+    // Handle updates for individual nodes
+    socket.on("update_node", (payload) => {
         console.log("Node update received:", payload);
-
-        if (!payload || typeof payload !== 'object' || Object.keys(payload).length === 0) {
-            console.error("Invalid or empty payload received for update_node:", payload);
-            return;
-        }
-
         const nodeName = Object.keys(payload)[0];
-        console.log(`Node Name: "${nodeName}"`);
         const nodeData = payload[nodeName];
-
-        console.log("Extracted nodeName:", nodeName);
-        console.log("Extracted nodeData:", nodeData);
-
-        if (!nodeData || typeof nodeData !== 'object') {
-            console.error(`Malformed data for node "${nodeName}":`, nodeData);
-            return;
-        }
-
-        if (!nodeData || !nodeData.sensors) {
-            console.error(`Invalid node data for "${nodeName}".`, nodeData);
-            return;
-        }
-
-        const card = document.querySelector(`#node-card-${nodeName}`);
-        if (!card) {
-            console.warn(`Card for node "${nodeName}" not found.`);
-            return;
-        }
-
-        const sensors = nodeData.sensors || {};
-        card.querySelector('.temperature').textContent = `Temperature: ${sensors.temperature || 'N/A'} ℃`;
-        card.querySelector('.door').textContent = `Door: ${sensors.door || 'Unknown'}`;
-        card.querySelector('.motion').textContent = `Motion: ${sensors.motion || 'Unknown'}`;
-
         updateNodeCard(nodeName, nodeData);
     });
 
     // Handle updates for all nodes
-    socket.on('update_all', (data) => {
+    socket.on("update_all", (data) => {
         console.log("All nodes updated:", data);
         const enable = data.alarm;
         document.querySelectorAll(".form-check-input[id^='alarm-toggle-']").forEach((toggle) => {
@@ -192,36 +201,6 @@ function initializeSensors() {
         });
         updateAllToggleState();
     });
-
-//    // Optional: Throttle updates for high-frequency data
-//    let updateTimeout;
-//    socket.on('update_node', function (payload) {
-//        const node = payload.node;
-//        const card = document.getElementById(`node-card-${node}`);
-//        if (!card) {
-//            console.warn(`Card for node ${node} not found in the DOM.`);
-//            return;
-//        }
-//
-//        clearTimeout(updateTimeout);
-//        updateTimeout = setTimeout(() => {
-//            // Your DOM update logic here
-//        }, 100);
-//
-//        // Update card content
-//        card.querySelector('.alarm-status span').textContent = payload.alarm ? 'Enabled' : 'Disabled';
-//        card.querySelector('.alarm-status span').className = payload.alarm ? 'text-success' : 'text-danger';
-//        card.querySelector('.temperature').textContent = `Temperature: ${payload.sensors.temperature || 'N/A'} ℃`;
-//        card.querySelector('.door').textContent = `Door: ${payload.sensors.door || 'Unknown'}`;
-//        card.querySelector('.motion').textContent = `Motion: ${payload.sensors.motion || 'Unknown'}`;
-//    });
-
-//    socket.on('update_node', (data) => {
-//        clearTimeout(updateTimeout);
-//        updateTimeout = setTimeout(() => {
-//            // Your DOM update logic here
-//        }, 100);
-//    });
 }
 
 // Run initialization on DOMContentLoaded

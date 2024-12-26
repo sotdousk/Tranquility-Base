@@ -22,6 +22,7 @@ BROKER = "mqtt.eclipseprojects.io"  # Replace with your broker's address
 PORT = 1883  # Default MQTT port
 TOPIC = "home/automation/#"  # Subscribe to all subtopics under 'home/automation'
 
+invasion_detected = False
 
 # MQTT Callbacks
 def on_connect(client, userdata, flags, rc):
@@ -34,6 +35,7 @@ def on_connect(client, userdata, flags, rc):
 
 # Broadcast new sensor data via WebSocket
 def on_message(client, userdata, message):
+    global invasion_detected
     try:
         # Decode the message payload
         payload = json.loads(message.payload.decode())
@@ -60,6 +62,16 @@ def on_message(client, userdata, message):
             if "sensors" in payload[node]:
                 print("Update sensor data")
                 data[node]["sensors"].update(payload[node]["sensors"])
+                if (data[node]['alarm']) and (payload[node]['sensors']['motion'] == "Motion Detected"):
+                    invasion_detected = True
+                    # Broadcast the alarm status to all connected clients
+                    msg2display = f"Intrusion detected in {node} / Motion sensor: {payload[node]['sensors']['motion']}"
+                    socketio.emit("alarm_status", {"status": msg2display})
+                if (data[node]['alarm']) and (payload[node]['sensors']['door'] == "Open") :
+                    invasion_detected = True
+                    # Broadcast the alarm status to all connected clients
+                    msg2display = f"Intrusion detected in {node} / Door sensor: {payload[node]['sensors']['door']}"
+                    socketio.emit("alarm_status", {"status": msg2display})
                 if "temperature" in data[node]["sensors"]:
                     data[node]["sensors"]["temperature"] = round(data[node]["sensors"]["temperature"], 2)
 
@@ -180,6 +192,16 @@ def toggle_all_alarms():
             return jsonify({"error": str(e)}), 500
 
 
+@app.route("/reset_alarm", methods=["POST"])
+def reset_alarm():
+    global invasion_detected
+    invasion_detected = False
+
+    # Notify all clients that the alarm has been reset
+    socketio.emit("alarm_status", {"status": "Everything is ok..."})
+    return jsonify({"message": "Alarm reset successfully."})
+
+
 # Graceful shutdown function
 def shutdown_handler(signal_received, frame):
     print("\nShutting down gracefully...")
@@ -204,6 +226,6 @@ if __name__ == "__main__":
 
     try:
         # Run Flask app
-        app.run(debug=True)
+        app.run(host='0.0.0.0', debug=True)
     except KeyboardInterrupt:
         shutdown_handler(None, None)

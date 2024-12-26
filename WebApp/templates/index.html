@@ -7,6 +7,16 @@
     <h1 class="text-center">Welcome to the Home Automation Dashboard</h1>
     <p>View and control your home automation system from here.</p>
 
+     <!-- Alarm Status -->
+    <div id="alarm-message" class="alert text-center alert-success" style="position: relative;">
+        <span id="alarm-text">Everything is ok...</span>
+        <button id="reset-alarm" class="btn btn-sm btn-warning ms-3" style="display: none; position: absolute; right: 10px; top: 10px;">
+            Turn Off Alarm
+        </button>
+    </div>
+
+
+
     {% if data.items() %}
     <!-- Cards container for real-time updates -->
     <div id="cards-container" class="row">
