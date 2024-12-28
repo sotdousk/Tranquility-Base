@@ -89,7 +89,7 @@ def main():
 	# Periodic temperature updates
 	while True:
 		publish_data()
-		time.sleep(5)
+		time.sleep(10)
 
 
 try:

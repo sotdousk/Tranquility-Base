@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Automation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/home.css') }}">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <h1>Welcome to Your Home Automation System</h1>
+    </header>
+
+    <!-- Buttons Section -->
+    <main class="button-container">
+        <a href="{{ url_for('security') }}" class="button-card">
+            <img src="{{ url_for('static', filename='icons/security.png') }}" alt="Security">
+            <span>Security</span>
+        </a>
+        <a href="{{ url_for('thermal') }}" class="button-card">
+            <img src="{{ url_for('static', filename='icons/thermal.png') }}" alt="Thermal Comfort">
+            <span>Thermal Comfort</span>
+        </a>
+        <a href="{{ url_for('settings') }}" class="button-card">
+            <img src="{{ url_for('static', filename='icons/settings.png') }}" alt="Settings">
+            <span>Settings</span>
+        </a>
+
+    </main>
+    <!-- Footer (optional) -->
+    <footer class="text-center py-3 mt-4">
+        <p class="text-muted">© 2024 Home Automation System</p>
+    </footer>
+</body>
+</html>

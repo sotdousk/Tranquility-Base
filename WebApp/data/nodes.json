@@ -2,7 +2,7 @@
     "Node1": {
         "alarm": false,
         "sensors": {
-            "temperature": 15.92,
+            "temperature": 12.13,
             "door": "Closed",
             "motion": "No Motion"
         }
