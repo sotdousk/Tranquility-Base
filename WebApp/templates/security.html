@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
+    <title>Security View</title>
+</head>
+<body>
+    <header>
+        <h1>Security Monitoring</h1>
+    </header>
+    <main>
+        <div class="container">
+            <h1 class="text-center">Security Overview</h1>
+
+            <!-- Intrusion Detected Alert -->
+            {% if nodes.Intrusion_detected %}
+            <div class="alert alert-danger text-center" role="alert">
+                {% autoescape false %}
+                    {{message}}
+                {% endautoescape %}
+            </div>
+            {% else %}
+            <div class="alert alert-success text-center" role="alert">
+                {% autoescape false %}
+                    {{message}}
+                {% endautoescape %}
+            </div>
+            {% endif %}
+
+            <!-- Node Details -->
+            <div class="row mt-4">
+                {% for node, details in nodes.items() if node != 'Intrusion_detected' %}
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            {{ node }}
+                        </div>
+                        <div class="card-body">
+                            <p>Status: {{ 'Active' if details.on_alert else 'On Standby' }}</p>
+                            <p>Temperature: {{ details.sensors.temperature or 'N/A' }} ℃</p>
+                            <p>Door: {{ details.sensors.door or 'N/A' }}</p>
+                            <p>PIR: {{ details.sensors.motion or 'N/A' }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</body>
+</html>

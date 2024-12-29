@@ -1,6 +1,7 @@
 {
+    "Intrusion_detected": false,
     "Node1": {
-        "alarm": false,
+        "on_alert": false,
         "sensors": {
             "temperature": 12.13,
             "door": "Closed",
@@ -8,7 +9,7 @@
         }
     },
     "Node2": {
-        "alarm": false,
+        "on_alert": false,
         "sensors": {
             "temperature": 23.1,
             "door": "Open",
