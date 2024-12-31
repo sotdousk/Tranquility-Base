@@ -1,6 +1,7 @@
 import json
 import time
 import paho.mqtt.client as mqtt
+import random
 
 # MQTT Broker Configuration
 BROKER = "192.168.2.5"  # Replace with your MQTT broker address
@@ -11,19 +12,23 @@ TOPIC = "home/automation/update"  # Topic to publish updates
 client = mqtt.Client()
 
 # Simulated Node Data
-node_name = "Node1"  # Name of the mock sensor node
+node_name = "Node1"
 mock_data = {
     node_name: {
+        "on_alert": False,
         "sensors": {
-            "temperature": 30.8,  # Example initial temperature
-            "door": "Open",       # Example initial door status
-            "motion": "Motion Detected"  # Example initial motion status
+            "security": {
+                "door": "Closed",
+                "motion": "No Motion"
+            },
+            "thermals": {
+                "temperature": 25.0
+            }
         }
     }
 }
 
 
-# MQTT Connection Callback
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Connected to MQTT broker")
@@ -31,38 +36,30 @@ def on_connect(client, userdata, flags, rc):
         print(f"Failed to connect, return code {rc}")
 
 
-# Attach the connection callback
 client.on_connect = on_connect
-
-# Connect to the MQTT broker
 client.connect(BROKER, PORT, 60)
 
 
-# Function to simulate sending MQTT messages
 def send_mock_data():
+    alert_toggle = False  # Used to toggle alert status
     while True:
-        # Update the mock data dynamically
-        node_data = mock_data[node_name]
-        node_data["sensors"]["temperature"] += 0.05  # Increment temperature slightly
-        node_data["sensors"]["motion"] = (
-            "No Motion" if node_data["sensors"]["motion"] == "Motion Detected" else "Motion Detected"
-        )  # Toggle motion status
-        node_data["sensors"]["door"] = (
-            "Closed" if node_data["sensors"]["door"] == "Open" else "Open"
-        )  # Toggle door status
+        # Update mock data dynamically
+        mock_data[node_name]["sensors"]["thermals"]["temperature"] += random.uniform(-0.5, 0.5)
+        mock_data[node_name]["sensors"]["security"]["motion"] = random.choice(["Motion Detected", "No Motion"])
+        mock_data[node_name]["sensors"]["security"]["door"] = random.choice(["Open", "Closed"])
+        alert_toggle = not alert_toggle
+        mock_data[node_name]["on_alert"] = alert_toggle
 
-        # Prepare payload and publish it
-        payload = json.dumps(mock_data)
+        # Prepare and send payload
+        payload = json.dumps(mock_data)  # Ensure this generates valid JSON
         client.publish(TOPIC, payload)
-        print(f"Published: {payload} to topic {TOPIC}")
 
-        # Wait before sending the next update
+        print(f"Published: {payload} to topic {TOPIC}")
         time.sleep(5)
 
 
-# Run the mock data sender
 try:
     send_mock_data()
 except KeyboardInterrupt:
-    print("Stopped by user")
+    print("Simulation stopped by user")
     client.disconnect()
