@@ -47,8 +47,8 @@ def send_mock_data():
         mock_data[node_name]["sensors"]["thermals"]["temperature"] += random.uniform(-0.5, 0.5)
         mock_data[node_name]["sensors"]["security"]["motion"] = random.choice(["Motion Detected", "No Motion"])
         mock_data[node_name]["sensors"]["security"]["door"] = random.choice(["Open", "Closed"])
-        alert_toggle = not alert_toggle
-        mock_data[node_name]["on_alert"] = alert_toggle
+        # alert_toggle = not alert_toggle
+        # mock_data[node_name]["on_alert"] = alert_toggle
 
         # Prepare and send payload
         payload = json.dumps(mock_data)  # Ensure this generates valid JSON
