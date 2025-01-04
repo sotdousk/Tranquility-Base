@@ -16,20 +16,29 @@
         <div class="container">
             <h1 class="text-center">Security Overview</h1>
 
-           <!-- Intrusion Detected Alert -->
-            {% if intrusion_detected %}
-            <div class="alert alert-danger text-center" role="alert">
-                {% autoescape false %}
-                    {{message}}
-                {% endautoescape %}
+            <!-- Intrusion Detected Alert -->
+            <div class="text-center">
+                {% if intrusion_detected %}
+                <div class="alert alert-danger" role="alert">
+                    <span class="intrusion-message">{{ intrusion_message }}</span>
+                    <button id="reset-intrusion" class="btn btn-warning btn-sm">Reset Alarm</button>
+                </div>
+                {% else %}
+                <div class="alert alert-success" role="alert">
+                    <p>Intrusion Status: <span id="intrusion-status">{{ 'Intrusion Detected' if intrusion_detected else 'No Intrusion' }}</span> </p>
+                    <p>Message: <span id="intrusion-message">{{ intrusion_message }}</span></p>
+                </div>
+                {% endif %}
             </div>
-            {% else %}
-            <div class="alert alert-success text-center" role="alert">
-                {% autoescape false %}
-                    {{message}}
-                {% endautoescape %}
+
+            <!-- Global Toggle Switch -->
+            <div class="text-center">
+                <label for="toggle-all" class="form-check-label">Activate All</label>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-all">
+                    <span class="slider"></span>
+                </label>
             </div>
-            {% endif %}
 
             <!-- Node Details -->
             <div id="nodes-container">
@@ -39,6 +48,14 @@
                         <div class="card mb-3 {% if details['on_alert'] %}border-success{% else %}border-danger{% endif %}" id="node-card-{{ node }}">
                             <div class="card-header bg-primary text-white">
                                 {{ node }}
+                                <div class="float-end">
+                                    <label id="activate-label">Activate
+                                    <label class="switch">
+                                        <input type="checkbox" class="toggle-node" id="toggle-{{ node }}" {% if details.on_alert %}checked{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                    </label>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <p class="status">Status: {{ 'Active' if details.on_alert else 'On Standby' }}</p>
