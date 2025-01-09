@@ -4,35 +4,30 @@ import sys
 import json
 from flask import Flask, render_template, request, jsonify
 import paho.mqtt.client as mqtt
+from threading import Lock
+
+from security import SecurityManager
+from thermal import ThermalManager
 from flask_socketio import SocketIO
 
+
+data_lock = Lock()
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "secret!"
-socketio = SocketIO(app)
-
-invasion_detected = False
-
+# Instantiate the socketio object
+socketio = SocketIO()
+socketio.init_app(app)
 DATA_FILE = "./data/nodes.json"
+
+security_manager = SecurityManager(socketio, DATA_FILE)
+thermals_manager = ThermalManager(socketio, DATA_FILE)
+
+
 # MQTT Configuration
 TEST_BROKER_IP = "192.168.2.5"
 BROKER = "mqtt.eclipseprojects.io"  # Replace with your broker's address
 PORT = 1883  # Default MQTT port
 TOPIC = "home/automation/#"  # Subscribe to all subtopics under 'home/automation'
-
-
-# Load and Save JSON Data
-def load_data():
-    if not os.path.exists(DATA_FILE):
-        return {}
-    with open(DATA_FILE, "r") as file:
-        # data = json.load(file)
-        raw_data = json.load(file)
-        return raw_data
-
-
-def save_data(data):
-    with open(DATA_FILE, "w") as file:
-        json.dump(data, file, indent=4)
 
 
 # MQTT Callbacks
@@ -45,23 +40,10 @@ def on_connect(client, userdata, flags, rc):
         print(f"Failed to connect, return code: {rc}")
 
 
-def validate_data(data):
-    for node, details in data.items():
-        if node != "Intrusion_detected":
-            if "sensors" not in details:
-                details["sensors"] = {}
-            if "security" not in details["sensors"]:
-                details["sensors"]["security"] = {"door": "N/A", "motion": "N/A"}
-    return data
-
-
-# Broadcast new sensor data via WebSocket
 def on_message(client, userdata, message):
     print("New message arrived!")
+    print(f"on_message triggered by topic: {message.topic}")
     try:
-        # Debug the raw payload before decoding
-        print(f"Raw MQTT payload: {message.payload}")
-
         raw_payload = message.payload.decode()
         if not raw_payload.strip():
             print("Empty MQTT payload received. Skipping...")
@@ -70,119 +52,28 @@ def on_message(client, userdata, message):
         try:
             payload = json.loads(raw_payload)
         except json.JSONDecodeError as e:
-            print(f"Malformed JSON payload: {raw_payload}. Error: {e}")
             return
+
         print(f"Decoded payload: {payload}")
         node = list(payload.keys())[0]
         node_data = payload[node]
 
-        if "sensors" not in node_data or "security" not in node_data["sensors"]:
-            print(f"Missing security sensors data for node: {node}")
-        else:
-            print(f"Security sensors data for node: {node} formatted as expected.")
+        # Determine the type of incoming data
+        known_packet = False
+        if "security" in node_data.get("sensors", {}):
+            known_packet = True
+            print("Call handler from security manager.")
+            security_manager.handle_security_packet(node, node_data)
+        if "thermals" in node_data.get("sensors", {}):
+            known_packet = True
+            thermals_manager.handle_thermal_packet(node, node_data)
 
-        # Load JSON file
-        data = load_data()
-
-        # Add/update node data without overwriting `on_alert`
-        if node not in data:
-            print(f"Node {node} not found. Initializing default values.")
-            data[node] = {
-                "on_alert": False,
-                "sensors": {
-                    "security": {"door": "N/A", "motion": "N/A"},
-                    "thermals": {"temperature": "N/A"},
-                },
-            }
-
-        # Update node's sensors without overwriting the `on_alert` field
-        if node in data:
-            node_data["on_alert"] = data[node].get("on_alert", False)
-        data[node] = node_data
-
-        # Check for intrusions
-        print("Check for intrusions")
-        intrusion_detected = False
-        for node_name, details in data.items():
-            if node_name != "Intrusion_detected" and details["on_alert"]:
-                node_security = details["sensors"]["security"]
-                if node_security["motion"] == "Motion Detected" or node_security["door"] == "Open":
-                    intrusion_detected = True
-
-        # Update and broadcast data
-        data["Intrusion_detected"] = intrusion_detected
-        data = validate_data(data)
-        save_data(data)
-
-        # Broadcast to clients
-        socketio.emit("update_node", data)
-        print(f"Broadcasting: {data}")
+        # Inform on whether the packet has been identified
+        if not known_packet:
+            print("Unknown type of MQTT packet. Skipping...")
 
     except Exception as e:
         print(f"Error in on_message: {e}")
-
-
-# MQTT Publish Function to synch the on_alert value
-def publish_synch_on_alert(node_name, field, value):
-    control_topic = f"home/automation/control/{node_name}"
-    payload = json.dumps({field: value})
-    mqtt_client.publish(control_topic, payload)
-    print(f"Published {field}: {value} to {control_topic}")
-
-
-def check_intrusion():
-    global invasion_detected
-    data = load_data()
-    msg = ""
-
-    # Reset the invasion flag before evaluating
-    invasion_detected = False
-
-    # Evaluate intrusion status
-    for node, details in data.items():
-        # Skip non-node entries like "Intrusion_detected
-        if node == "Intrusion_detected":
-            continue
-
-        # Ensure the 'sensors' key exists and contains 'security' data
-        sensors = details.get('sensors', {}).get('security', {})
-        on_alert = details.get('on_alert', False)
-
-        # Check motion sensor
-        if on_alert and sensors.get('motion') == "Motion Detected":
-            invasion_detected = True
-            msg += f"Invasion detected in {node} - Motion: Motion Detected<br>"
-
-        # Check door sensor
-        if on_alert and sensors.get('door') == "Open":
-            invasion_detected = True
-            msg += f"Invasion detected in {node} - Door: Open<br>"
-
-    # Log invasion status
-    if invasion_detected:
-        print("Invasion detected!")
-    else:
-        print("No invasion detected...")
-    # Persist and broadcast the state
-    data["Intrusion_detected"] = invasion_detected
-    save_data(data)
-
-    socketio.emit("intrusion_status", {"Intrusion_detected": invasion_detected, "message": msg})
-    print(f"Broadcasting intrusion status: {invasion_detected} - {msg}")
-
-    return msg or "All Clear. No Intrusions Detected."
-
-
-@socketio.on("reset_intrusion")
-def reset_intrusion():
-    try:
-        data = load_data()
-        data["Intrusion_detected"] = False  # Reset the intrusion state
-        save_data(data)
-        socketio.emit("update_node", data)  # Notify clients about the reset
-        print("Intrusion alarm reset successfully.")
-    except Exception as e:
-        print(f"Error resetting intrusion alarm: {e}")
 
 
 # Initialize MQTT client
@@ -200,23 +91,24 @@ def home():
     return render_template('home.html')
 
 
+# @app.route('/test_endpoint')
+# def test_endpoint():
+#     data = load_data()  # Assuming this loads the JSON file
+#     print(f"Data passed to template: {data}")
+#     return render_template('security.html', nodes=data)
+
+
 @app.route('/security')
 def security():
-    global invasion_detected
-    data = load_data()
-    check_result = check_intrusion()
+    data = security_manager.load_data()
 
     # Filter only security-related data
     for node, details in data.items():
-        if node != "Intrusion_detected":
-            details["sensors"] = details["sensors"].get('security', {})
-            # Log the intrusion status and message
-            print(f"Intrusion message: {check_result}")
+        if node not in ["Intrusion_detected", "intrusion_message"]:
+            details["sensors"]['security'] = details["sensors"].get('security', {})
+
     return render_template("security.html",
-                           nodes=data,
-                           intrusion_message=check_result,
-                           intrusion_detected=invasion_detected
-                           )
+                           nodes=data)
 
 
 @app.route('/thermal')
@@ -227,115 +119,6 @@ def thermal():
 @app.route('/settings')
 def settings():
     return "Settings page under construction!"  # Replace with your settings view template later
-
-
-@app.route("/api/toggle_alarm", methods=["POST"])
-def toggle_alarm():
-    data = load_data()
-    request_data = request.get_json()
-    node = request_data.get("node")
-    if node in data:
-        # Toggle the alarm state
-        data[node]["on_alert"] = not data[node]["on_alert"]
-        save_data(data)  # Persist changes to JSON file
-
-        # Publish the new state to MQTT
-        publish_synch_on_alert(node, "on_alert", data[node]["on_alert"])
-
-        # Emit the update via Socket.IO
-        socketio.emit('update_node', {node: data[node]})
-
-        return jsonify({"message": f"Alarm for {node} is now {'Active' if data[node]['on_alert'] else 'Stand-by'}"}), \
-               200
-    return jsonify({"error": "Node not found"}), 404
-
-
-@app.route('/api/toggle_all_alarms', methods=['POST'])
-def toggle_all_alarms():
-    try:
-        data = load_data()
-        request_data = request.get_json()
-        enable = request_data.get("enable")
-        print(enable)
-        if enable is None:
-            return jsonify({"error": "Missing 'enable' field in request payload."}), 400
-
-        # Update all nodes and persist changes
-        for node in data:
-            if node != "Intrusion_detected":
-                data[node]["on_alert"] = enable
-                publish_synch_on_alert(node, "on_alert", enable)
-        save_data(data)
-
-        # Emit the update via Socket.IO
-        socketio.emit('update_all', {'on_alert': enable})
-
-        return jsonify({"message": f"All alarms {'enabled' if enable else 'disabled'} successfully!"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/save_node_status", methods=["POST"])
-def save_node_status():
-    data = request.json
-    node_name = data.get("node")
-    on_alert = data.get("on_alert")
-    print("SOT:", on_alert)
-
-    # Update the JSON data
-    with open("./data/nodes.json", "r+") as f:
-        nodes_data = json.load(f)
-        if node_name in nodes_data:
-            nodes_data[node_name]["on_alert"] = on_alert
-            publish_synch_on_alert(node_name, "on_alert", on_alert)
-
-        # # Save the updated data back to the JSON file
-        # f.seek(0)
-        # json.dump(nodes_data, f, indent=4)
-        # f.truncate()
-    save_data(nodes_data)
-
-    print("SOT:", nodes_data)
-    return jsonify({"success": True})
-
-
-@app.route("/api/save_global_status", methods=["POST"])
-def save_global_status():
-    data = request.json
-    on_alert = data.get("on_alert")
-
-    with open("./data/data.json", "r+") as f:
-        nodes_data = json.load(f)
-        for node_name, node_data in nodes_data.items():
-            if node_name != "Intrusion_detected":
-                node_data["on_alert"] = on_alert
-                publish_synch_on_alert(node_name, "on_alert", on_alert)
-        # f.seek(0)
-        # json.dump(nodes_data, f, indent=4)
-        # f.truncate()
-        save_data(nodes_data)
-
-    return jsonify({"success": True})
-
-
-@app.route('/api/get_intrusion_status', methods=["GET"])
-def get_intrusion_status():
-    global invasion_detected
-    intrusion_message = check_intrusion()   # Get the latest intrusion message
-    return {
-        "intrusion_detected": invasion_detected,
-        "intrusion_message": intrusion_message
-    }
-
-
-@app.route("/reset_intrusion", methods=["POST"])
-def reset_intrusion():
-    global invasion_detected
-    invasion_detected = False
-
-    # Notify all clients that the alarm has been reset
-    socketio.emit("alarm_status", {"status": "Everything is ok..."})
-    return jsonify({"message": "Alarm reset successfully."})
 
 
 # Graceful shutdown function

@@ -110,13 +110,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function fetchIntrusionStatus() {
         fetch('/api/get_intrusion_status')
-        .then(response => response.json())
-        .then(data => {
-            // Update the intrusion message and status in the UI
-            document.getElementById('intrusion-message').innerText = data.intrusion_message;
-            document.getElementById('intrusion-status').innerText = data.intrusion_detected ? "Intrusion Detected" : "No Intrusion";
-        })
-        .catch(error => console.error('Error fetching intrusion status:', error));
+            .then(response => response.json())
+            .then(data => {
+                const alertContainer = document.getElementById('alert-container');
+                const intrusionMessageElement = document.getElementById('intrusion-message');
+                const intrusionStatusElement = document.getElementById('intrusion-status');
+
+                if (alertContainer && intrusionMessageElement && intrusionStatusElement) {
+                    // Set the message to a fallback if undefined
+                    const message = data.message || "No Intrusion Detected";
+                    intrusionMessageElement.innerHTML = message;
+
+                    if (data.intrusion_detected) {
+                        alertContainer.classList.remove('alert-success');
+                        alertContainer.classList.add('alert-danger');
+                        intrusionStatusElement.innerText = "Intrusion Detected";
+
+                        // Add the reset button if it doesn't exist
+                        if (!document.getElementById('reset-intrusion')) {
+                            const resetButton = document.createElement('button');
+                            resetButton.id = 'reset-intrusion';
+                            resetButton.className = 'btn btn-warning btn-sm';
+                            resetButton.innerText = 'Reset Alarm';
+                            alertContainer.appendChild(resetButton);
+
+                            // Attach the reset button event listener
+                            resetButton.addEventListener('click', resetIntrusion);
+                        }
+                    } else {
+                        alertContainer.classList.remove('alert-danger');
+                        alertContainer.classList.add('alert-success');
+                        intrusionStatusElement.innerText = "No Intrusion";
+
+                        // Remove the reset button if present
+                        const resetButton = document.getElementById('reset-intrusion');
+                        if (resetButton) {
+                            resetButton.remove();
+                        }
+                    }
+                } else {
+                    console.error('Required elements not found in the DOM.');
+                }
+            })
+            .catch(error => console.error('Error fetching intrusion status:', error));
     }
 
     function resetIntrusion() {
@@ -126,13 +162,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 'Content-Type': 'application/json',
             },
         })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message || 'Intrusion alarm reset successfully.');
-            // Optionally reload the page or update the UI
-            location.reload();
-        })
-        .catch(error => console.error('Error resetting intrusion:', error));
+            .then(response => response.json())
+            .then(data => {
+                const alertContainer = document.getElementById('alert-container');
+                const intrusionMessageElement = document.getElementById('intrusion-message');
+                const intrusionStatusElement = document.getElementById('intrusion-status');
+                const resetButton = document.getElementById('reset-intrusion');
+
+                if (alertContainer && intrusionMessageElement && intrusionStatusElement) {
+                    // Update UI to reflect reset state
+                    alertContainer.classList.remove('alert-danger');
+                    alertContainer.classList.add('alert-success');
+
+                    // Update message and status
+                    intrusionMessageElement.innerHTML = "No Intrusion Detected.";
+                    intrusionStatusElement.innerText = "No Intrusion";
+
+                    // Remove the reset button
+                    if (resetButton) {
+                        resetButton.remove();
+                    }
+                }
+            })
+            .catch(error => console.error('Error resetting intrusion:', error));
     }
 
     // Periodically fetch the status every 5 seconds
@@ -189,4 +241,26 @@ document.addEventListener("DOMContentLoaded", () => {
         // Update global switch state after receiving data
         updateGlobalSwitchState();
     });
+
+    socket.on("intrusion_status", (data) => {
+        const alertContainer = document.getElementById('alert-container');
+        const intrusionMessageElement = document.getElementById('intrusion-message');
+        const intrusionStatusElement = document.getElementById('intrusion-status');
+
+        if (alertContainer && intrusionMessageElement && intrusionStatusElement) {
+            const message = data.message || "No Intrusion Detected";
+            intrusionMessageElement.innerHTML = message;
+
+            if (data.intrusion_detected) {
+                alertContainer.classList.remove('alert-success');
+                alertContainer.classList.add('alert-danger');
+                intrusionStatusElement.innerText = "Intrusion Detected";
+            } else {
+                alertContainer.classList.remove('alert-danger');
+                alertContainer.classList.add('alert-success');
+                intrusionStatusElement.innerText = "No Intrusion";
+            }
+        }
+    });
+
 });

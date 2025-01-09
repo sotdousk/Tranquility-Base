@@ -1,14 +1,13 @@
 {
-    "Intrusion_detected": false,
     "Node1": {
         "on_alert": false,
         "sensors": {
             "security": {
-                "door": "Open",
+                "door": "Closed",
                 "motion": "No Motion"
             },
             "thermals": {
-                "temperature": 25.4439290531438
+                "temperature": 26.364312831173553
             }
         }
     },
@@ -17,11 +16,11 @@
         "sensors": {
             "security": {
                 "door": "Closed",
-                "motion": "Motion Detected"
+                "motion": "No Motion"
             },
-            "thermals": {
-                "temperature": 23.1
-            }
+            "thermals": null
         }
-    }
+    },
+    "Intrusion_detected": false,
+    "intrusion_message": ""
 }

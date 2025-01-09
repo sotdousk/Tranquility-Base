@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="{{ url_for('static', filename='js/security.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/security2.js') }}"></script>
     <title>Security View</title>
 </head>
 <body>
@@ -16,7 +16,7 @@
         <div class="container">
             <h1 class="text-center">Security Overview</h1>
 
-            <!-- Intrusion Detected Alert -->
+             <!-- Intrusion Detected Alert -->
             <div class="text-center">
                 {% if intrusion_detected %}
                 <div class="alert alert-danger" role="alert">
@@ -31,19 +31,10 @@
                 {% endif %}
             </div>
 
-            <!-- Global Toggle Switch -->
-            <div class="text-center">
-                <label for="toggle-all" class="form-check-label">Activate All</label>
-                <label class="switch">
-                    <input type="checkbox" id="toggle-all">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
             <!-- Node Details -->
             <div id="nodes-container">
                 <div class="row mt-4">
-                    {% for node, details in nodes.items() if node != 'Intrusion_detected' %}
+                    {% for node, details in nodes.items() if node not in ['Intrusion_detected', 'intrusion_message'] %}
                     <div class="col-md-6">
                         <div class="card mb-3 {% if details['on_alert'] %}border-success{% else %}border-danger{% endif %}" id="node-card-{{ node }}">
                             <div class="card-header bg-primary text-white">
@@ -59,8 +50,8 @@
                             </div>
                             <div class="card-body">
                                 <p class="status">Status: {{ 'Active' if details.on_alert else 'On Standby' }}</p>
-                                <p class="door">Door: {{ details.sensors.get('door', 'N/A') }}</p>
-                                <p class="motion">Motion: {{ details.sensors.get('motion', 'N/A') }}</p>
+                                <p class="door">Door: {{ details.get('sensors', {}).get('security', {}).get('door', 'N/A') }}</p>
+                                <p class="motion">Motion: {{ details.get('sensors', {}).get('security', {}).get('motion', 'N/A') }}</p>
                             </div>
                         </div>
                     </div>
