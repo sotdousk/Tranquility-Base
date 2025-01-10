@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <h2>${nodeName}</h2>
                     <p class="door">Door: ${securityData.door || "N/A"}</p>
                     <p class="motion">Motion: ${securityData.motion || "N/A"}</p>
+                    <p class="status">Status: ${nodeData.on_alert ? "Active" : "On Standby"}</p>
                 `;
                 nodesContainer.appendChild(newCard);
             }

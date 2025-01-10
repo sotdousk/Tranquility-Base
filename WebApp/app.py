@@ -121,6 +121,18 @@ def settings():
     return "Settings page under construction!"  # Replace with your settings view template later
 
 
+@socketio.on("toggle_node")
+def handle_toggle_node(data):
+    try:
+        node_name = data["node"]
+        on_alert = data["on_alert"]
+        print(f"Toggling alert state for node: {node_name} to {on_alert}")
+
+        # Update the alert state using the SecurityManager
+        security_manager.toggle_node_alert(node_name, on_alert)
+    except Exception as e:
+        print(f"Error handling toggle_node event: {e}")
+
 # Graceful shutdown function
 def shutdown_handler(signal_received, frame):
     print("\nShutting down gracefully...")
@@ -141,14 +153,3 @@ if __name__ == "__main__":
 
     # Run Flask app with SockectIO
     socketio.run(app, debug=True, host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True)
-
-    # try:
-    #     # Run Flask app
-    #     app.run(host='0.0.0.0', debug=True)
-    # except KeyboardInterrupt:
-    #     shutdown_handler(None, None)
-
-# TODO: 2. Based on whether an intrusion has been detected or not, the Intrusion Detected Alert \
-#  changes color but the message remains the same "All clear. No intrusion detected."
-# TODO: 3. Add a Reset Button
-# REVIEW: Global toggle does not work as expected - Active/Standby remains unchanged and nodes do not get notified
