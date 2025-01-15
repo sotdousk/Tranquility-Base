@@ -17,19 +17,26 @@
             <h1 class="text-center">Security Overview</h1>
 
              <!-- Intrusion Detected Alert -->
-            <div class="text-center">
-                {% if intrusion_detected %}
-                <div class="alert alert-danger" role="alert">
-                    <span class="intrusion-message">{{ intrusion_message }}</span>
-                    <button id="reset-intrusion" class="btn btn-warning btn-sm">Reset Alarm</button>
-                </div>
-                {% else %}
-                <div class="alert alert-success" role="alert">
-                    <p>Intrusion Status: <span id="intrusion-status">{{ 'Intrusion Detected' if intrusion_detected else 'No Intrusion' }}</span> </p>
-                    <p>Message: <span id="intrusion-message">{{ intrusion_message }}</span></p>
-                </div>
-                {% endif %}
+<!--            <div class="text-center">-->
+<!--                {% if intrusion_detected %}-->
+<!--                <div class="alert alert-danger" role="alert">-->
+<!--                    <span class="intrusion-message">{{ intrusion_message }}</span>-->
+<!--                    <button id="reset-intrusion" class="btn btn-warning btn-sm">Reset Alarm</button>-->
+<!--                </div>-->
+<!--                {% else %}-->
+<!--                <div class="alert alert-success" role="alert">-->
+<!--                    <p>Intrusion Status: <span id="intrusion-status">{{ 'Intrusion Detected' if intrusion_detected else 'No Intrusion' }}</span> </p>-->
+<!--                    <p>Message: <span id="intrusion-message">{{ intrusion_message }}</span></p>-->
+<!--                </div>-->
+<!--                {% endif %}-->
+<!--            </div>-->
+            <div id="intrusion-message-container" class="alert alert-success">
+                No intrusion detected.
             </div>
+
+            <button id="reset-intrusion-button" class="btn btn-warning">
+                Reset Intrusion Alarm
+            </button>
 
             <!-- Node Details -->
             <div id="nodes-container">

@@ -4,14 +4,11 @@ import sys
 import json
 from flask import Flask, render_template, request, jsonify
 import paho.mqtt.client as mqtt
-from threading import Lock
 
 from security import SecurityManager
 from thermal import ThermalManager
 from flask_socketio import SocketIO
 
-
-data_lock = Lock()
 
 app = Flask(__name__)
 # Instantiate the socketio object
@@ -121,6 +118,21 @@ def settings():
     return "Settings page under construction!"  # Replace with your settings view template later
 
 
+@app.route('/reset_intrusion', methods=['POST'])
+def reset_intrusion():
+    try:
+        print("Endpoint for resetting intrusion")
+        print("Calling reset_intrusion method...")
+        result = security_manager.reset_intrusion()
+        print("Reset_intrusion method executed:", result)
+        # Notify clients about the reset
+        socketio.emit('intrusion_reset', {'status': False})
+
+        return jsonify({"success": True, "message": "Intrusion alarm reset successfully!"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {e}"}), 500
+
+
 @socketio.on("toggle_node")
 def handle_toggle_node(data):
     try:
@@ -132,6 +144,7 @@ def handle_toggle_node(data):
         security_manager.toggle_node_alert(node_name, on_alert)
     except Exception as e:
         print(f"Error handling toggle_node event: {e}")
+
 
 # Graceful shutdown function
 def shutdown_handler(signal_received, frame):
