@@ -29,7 +29,6 @@ class SecurityManager:
 
         # Load current data
         data = self.load_data()
-        print("Extract stored data.")
 
         # Ensure the node exists in data
         if node not in data:
@@ -46,40 +45,25 @@ class SecurityManager:
         data[node]["sensors"]["security"].update(node_data.get("sensors", {}).get("security", {}))
 
         # Check for intrusion
-        self.check_for_intrusion(data)
+        data = self.check_for_intrusion(data)
 
         # Save data and broadcast updates
         self.save_data(data)
-        self.socketio.emit("update_node", {node: data[node]}, namespace="/security")
-
-        print(f"Updated security data for node {node}")
-        return
-
-    def handle_intrusion(self, node_name, intrusion_detected):
-        data = self.load_data()
-
-        if intrusion_detected:
-            # Set intrusion state and persist it
-            data["Intrusion_detected"]["status"] = True
-            data["Intrusion_detected"]["nodes_detected"].append(node_name)
-            data["Intrusion_detected"]["reset_by_user"] = False
-        elif not data["Intrusion_detected"]["reset_by_user"]:
-            # Keep intrusion active unless reset by the user
-            return
-
-        # Save updated data
-        self.save_data(data)
+        # self.socketio.emit("update_node", {node: data[node]}, namespace="/security")
         self.socketio.emit("update_node", data)
+        print(f"Updated security data for node {node}")
         return
 
     @staticmethod
     def check_for_intrusion(data):
         # Preserve the current reset_by_user state
-        reset_by_user = data["Intrusion_detected"].get("reset_by_user", False)
+        reset_by_user = data["Intrusion_detected"].get("reset_by_user", True)
+        intrusion_detected = data["Intrusion_detected"].get("status", False)
+        nodes_detected = data['Intrusion_detected'].get('nodes_detected', [])
         print(f"Current reset_by_user: {reset_by_user}")
 
-        intrusion_detected = False
-        nodes_detected = []
+        # intrusion_detected = False
+        # nodes_detected = []
 
         # Check for intrusion
         for node_name, details in data.items():
@@ -87,7 +71,9 @@ class SecurityManager:
                 security = details.get("sensors", {}).get("security", {})
                 if security.get("motion") == "Motion Detected" or security.get("door") == "Open":
                     intrusion_detected = True
-                    nodes_detected.append(node_name)
+                    reset_by_user = False
+                    if node_name not in nodes_detected:
+                        nodes_detected.append(node_name)
 
         # Update only status and nodes_detected, preserve reset_by_user
         data["Intrusion_detected"] = {
@@ -97,7 +83,7 @@ class SecurityManager:
         }
 
         print(f"Updated Intrusion_detected: {data['Intrusion_detected']}")
-        return
+        return data
 
     def reset_intrusion(self):
         print("Entered reset_intrusion method")
@@ -131,13 +117,3 @@ class SecurityManager:
             print(f"Node {node_name} not found. Unable to toggle alert.")
         return None
 
-    @staticmethod
-    def initialize_node(node, data):
-        if node not in data:
-            data[node] = {
-                "on_alert": False,
-                "sensors": {
-                    "security": {"door": "N/A", "motion": "N/A"},
-                    "thermals": {"temperature": "N/A"}
-                }
-            }

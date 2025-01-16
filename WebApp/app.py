@@ -70,7 +70,9 @@ def on_message(client, userdata, message):
             print("Unknown type of MQTT packet. Skipping...")
 
     except Exception as e:
+        # TODO: Fix error with trailing }
         print(f"Error in on_message: {e}")
+        print("Error in JSON formatting.")
 
 
 # Initialize MQTT client

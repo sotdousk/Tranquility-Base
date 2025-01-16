@@ -3,11 +3,11 @@
         "on_alert": false,
         "sensors": {
             "security": {
-                "door": "Closed",
-                "motion": "No Motion"
+                "door": "Open",
+                "motion": "Motion Detected"
             },
             "thermals": {
-                "temperature": 28.353935214650658
+                "temperature": 35.894011426954634
             }
         }
     },

@@ -1,3 +1,4 @@
 ../OlderTests/*
 ./data/nodes.json
 ../WebSocketTutorial/*
+./__pycache__/*
