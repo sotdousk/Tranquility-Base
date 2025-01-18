@@ -1,4 +1,5 @@
 import json
+import os
 from threading import Lock
 
 
@@ -30,8 +31,10 @@ class SecurityManager:
     # Save JSON data
     def save_data(self, data):
         with self.data_lock:
+            temp_file_path = f"{self.file_path}.tmp"
             with open(self.file_path, "w") as f:
                 json.dump(data, f, indent=4)
+            os.replace(temp_file_path, self.file_path)  # Atomically replace the old file
 
     def handle_security_packet(self, node, node_data):
         print(f"Handling security packet for node: {node}")
