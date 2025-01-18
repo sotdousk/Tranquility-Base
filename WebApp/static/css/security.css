@@ -33,33 +33,53 @@ header {
     color: #155724;
 }
 
-.card {
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-    font-weight: bold;
-    padding: 0.75rem;
-}
-
-.card-body {
-    padding: 1rem;
-}
-
 #activate-label {
     font-weight: normal !important;
     margin-top: 1rem;
 }
 
-/* Slider toggle switch styles */
+/* security.css */
+#intrusion-message-container {
+    padding: 20px;
+    font-size: 1.2em;
+}
+
+/* Add to your security.css */
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+}
+
+.card-header {
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    border-radius: 8px 8px 0 0;
+}
+
+.card-body {
+    padding: 0.75rem;
+}
+
+.border-success {
+    border-color: #28a745 !important;
+}
+
+.border-danger {
+    border-color: #dc3545 !important;
+}
+
+/* Add to your security.css */
 .switch {
     position: relative;
     display: inline-block;
-    width: 50px;
-    height: 25px;
-    margin-top: 1rem;
+    width: 34px;
+    height: 20px;
 }
 
 .switch input {
@@ -76,26 +96,27 @@ header {
     right: 0;
     bottom: 0;
     background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 25px;
+    transition: .4s;
+    border-radius: 34px;
 }
 
 .slider:before {
     position: absolute;
     content: "";
-    height: 19px;
-    width: 19px;
+    height: 14px;
+    width: 14px;
     left: 3px;
     bottom: 3px;
     background-color: white;
-    transition: 0.4s;
+    transition: .4s;
     border-radius: 50%;
 }
 
 input:checked + .slider {
-    background-color: #03bafc;
+    background-color: #4caf50;
 }
 
 input:checked + .slider:before {
-    transform: translateX(25px);
+    transform: translateX(14px);
 }
+

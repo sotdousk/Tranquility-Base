@@ -1,0 +1,19 @@
+h1 {
+  color: red;
+}
+
+.button-card {
+  display: inline-block;
+  transform: scale(1.5); /* Enlarge by 1.5x */
+  transform-origin: center;
+  text-align: center; /* Ensure text is centered */
+}
+
+.button-card img {
+  width: 70%;  /* Adjust image size relative to the container */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.button-card span {
+  font-size: 18px; /* Increase text size */
+}

@@ -3,11 +3,11 @@
         "on_alert": false,
         "sensors": {
             "security": {
-                "door": "Open",
-                "motion": "Motion Detected"
+                "door": "Closed",
+                "motion": "No Motion"
             },
             "thermals": {
-                "temperature": 35.894011426954634
+                "temperature": 16.4
             }
         }
     },
@@ -26,4 +26,4 @@
         "nodes_detected": [],
         "reset_by_user": true
     }
-}
+}}

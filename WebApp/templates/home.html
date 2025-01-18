@@ -1,16 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Automation System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/home.css') }}">
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/home.css') }}">
+{% endblock %}
+
+{% block content %}
     <!-- Header Section -->
-    <header>
+    <section class="home-header">
         <h1>Welcome to Your Home Automation System</h1>
-    </header>
+    </section>
 
     <!-- Buttons Section -->
     <main class="button-container">
@@ -26,11 +26,5 @@
             <img src="{{ url_for('static', filename='icons/settings.png') }}" alt="Settings">
             <span>Settings</span>
         </a>
-
     </main>
-    <!-- Footer (optional) -->
-    <footer class="text-center py-3 mt-4">
-        <p class="text-muted">© 2024 Home Automation System - made by snto</p>
-    </footer>
-</body>
-</html>
+{% endblock %}

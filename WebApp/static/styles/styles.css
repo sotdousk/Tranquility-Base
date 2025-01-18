@@ -1,0 +1,112 @@
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: #121212;
+    color: #E0E0E0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.header {
+    background: #1E1E1E;
+    padding: 20px;
+    text-align: center;
+    color: #E0E0E0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.navbar {
+    margin-top: 10px;
+}
+
+.navbar a {
+    color: #76C7C0;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+.navbar a:hover {
+    color: #E0E0E0;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background: #404040;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.footer {
+    background: #1E1E1E;
+    text-align: center;
+    padding: 10px;
+    color: #757575;
+    font-size: 14px;
+}
+
+.footer p {
+    margin: 0;
+}
+
+/* Center the header message */
+.home-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30vh; /* Take up 30% of the viewport height */
+    text-align: center;
+    margin: 0;
+    color: #76C7C0;
+    font-size: 2rem; /* Adjust size for emphasis */
+}
+
+/* Adjust button container position */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 50px 20px; /* Add extra padding to lower the icons */
+    flex-wrap: wrap;
+}
+
+/* Button styles (unchanged, just for reference) */
+.button-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #1E1E1E;
+    border: 2px solid #76C7C0;
+    border-radius: 10px;
+    padding: 15px;
+    text-decoration: none;
+    color: #E0E0E0;
+    width: 200px;
+    height: 200px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.button-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(118, 199, 192, 0.5);
+}
+
+.button-card img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+}
+
+.button-card span {
+    font-weight: bold;
+    font-size: 16px;
+}

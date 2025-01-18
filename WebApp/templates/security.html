@@ -1,71 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="{{ url_for('static', filename='js/security2.js') }}"></script>
-    <title>Security View</title>
-</head>
-<body>
-    <header>
-        <h1>Security Monitoring</h1>
-    </header>
-    <main>
-        <div class="container">
-            <h1 class="text-center">Security Overview</h1>
+{% extends "base.html" %}
 
-             <!-- Intrusion Detected Alert -->
-<!--            <div class="text-center">-->
-<!--                {% if intrusion_detected %}-->
-<!--                <div class="alert alert-danger" role="alert">-->
-<!--                    <span class="intrusion-message">{{ intrusion_message }}</span>-->
-<!--                    <button id="reset-intrusion" class="btn btn-warning btn-sm">Reset Alarm</button>-->
-<!--                </div>-->
-<!--                {% else %}-->
-<!--                <div class="alert alert-success" role="alert">-->
-<!--                    <p>Intrusion Status: <span id="intrusion-status">{{ 'Intrusion Detected' if intrusion_detected else 'No Intrusion' }}</span> </p>-->
-<!--                    <p>Message: <span id="intrusion-message">{{ intrusion_message }}</span></p>-->
-<!--                </div>-->
-<!--                {% endif %}-->
-<!--            </div>-->
-            <div id="intrusion-message-container" class="alert alert-success">
-                No intrusion detected.
-            </div>
+{% block title %}Security Monitoring{% endblock %}
 
-            <button id="reset-intrusion-button" class="btn btn-warning">
-                Reset Intrusion Alarm
-            </button>
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/security.css') }}">
+{% endblock %}
 
-            <!-- Node Details -->
-            <div id="nodes-container">
-                <div class="row mt-4">
-                    {% for node, details in nodes.items() if node not in ['Intrusion_detected', 'intrusion_message'] %}
-                    <div class="col-md-6">
-                        <div class="card mb-3 {% if details['on_alert'] %}border-success{% else %}border-danger{% endif %}" id="node-card-{{ node }}">
-                            <div class="card-header bg-primary text-white">
-                                {{ node }}
-                                <div class="float-end">
-                                    <label id="activate-label">Activate
-                                    <label class="switch">
-                                        <input type="checkbox" class="toggle-node" id="toggle-{{ node }}" {% if details.on_alert %}checked{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <p class="status">Status: {{ 'Active' if details.on_alert else 'On Standby' }}</p>
-                                <p class="door">Door: {{ details.get('sensors', {}).get('security', {}).get('door', 'N/A') }}</p>
-                                <p class="motion">Motion: {{ details.get('sensors', {}).get('security', {}).get('motion', 'N/A') }}</p>
-                            </div>
-                        </div>
+{% block scripts %}
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/security2.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="container">
+        <h1 class="text-center">Security Overview</h1>
+
+        <div id="intrusion-message-container" class="alert alert-success">
+            No intrusion detected.
+        </div>
+
+        <button id="reset-intrusion-button" class="btn btn-warning">
+            Reset Intrusion Alarm
+        </button>
+
+        <!-- Node Details -->
+        <div id="nodes-container">
+            {% for node, details in nodes.items() if node not in ['Intrusion_detected', 'intrusion_message'] %}
+            <div class="card mb-3 {% if details['on_alert'] %}border-success{% else %}border-danger{% endif %}" id="node-card-{{ node }}">
+                <div class="card-header">
+                    {{ node }}
+                    <div class="float-end">
+                        <label>Activate</label>
+                        <label class="switch">
+                            <input type="checkbox" class="toggle-node" id="toggle-{{ node }}" {% if details.on_alert %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
                     </div>
-                    {% endfor %}
+                </div>
+                <div class="card-body">
+                    <p class="status">Status: {{ 'Active' if details.on_alert else 'On Standby' }}</p>
+                    <p class="door">Door: {{ details.get('sensors', {}).get('security', {}).get('door', 'N/A') }}</p>
+                    <p class="motion">Motion: {{ details.get('sensors', {}).get('security', {}).get('motion', 'N/A') }}</p>
                 </div>
             </div>
+            {% endfor %}
         </div>
-    </main>
-</body>
-</html>
+    </div>
+</main>
+{% endblock %}
