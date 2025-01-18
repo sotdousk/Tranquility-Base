@@ -117,3 +117,51 @@ class SecurityManager:
             print(f"Node {node_name} not found. Unable to toggle alert.")
         return None
 
+    def auto_correct_json(self):
+        try:
+            with open(self.file_path, "r") as file:
+                content = file.read()
+
+            # Auto-correct logic: strip extra braces or fix common issues
+            content = content.strip()
+            if content.endswith("}}"):
+                content = content[:-1]  # Remove the extra closing brace
+
+            # Try parsing again
+            return json.loads(content)
+        except Exception as e:
+            print(f"Auto-correction failed: {e}")
+            print("Falling back to default JSON.")
+            self.save_data(DEFAULT_JSON)
+            return DEFAULT_JSON
+
+
+DEFAULT_JSON = {
+    "Node1": {
+        "on_alert": False,
+        "sensors": {
+            "security": {
+                "door": "Closed",
+                "motion": "No Motion"
+            },
+            "thermals": {
+                "temperature": 16.4
+            }
+        }
+    },
+    "Node2": {
+        "on_alert": False,
+        "sensors": {
+            "security": {
+                "door": "Closed",
+                "motion": "No Motion"
+            },
+            "thermals": None
+        }
+    },
+    "Intrusion_detected": {
+        "status": False,
+        "nodes_detected": [],
+        "reset_by_user": True
+    }
+}
