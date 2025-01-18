@@ -11,12 +11,21 @@ class SecurityManager:
     # Load JSON data
     def load_data(self):
         with self.data_lock:
-            print("Calling security load data.")
-            with open(self.file_path, "r") as f:
-                print("Loading data from file")
-                data = json.load(f)
-                print(f"Data loaded: {data}")
-                return data
+            try:
+                print("Calling security load data.")
+                with open(self.file_path, "r") as f:
+                    print("Loading data from file")
+                    data = json.load(f)
+                    print(f"Data loaded: {data}")
+                    return data
+            except json.JSONDecodeError as e:
+                print(f"JSON Decode Error: {e}")
+                print("Attempting to auto-correct...")
+                return self.auto_correct_json()
+            except FileNotFoundError:
+                print(f"JSON file not found. Creating default JSON.")
+                self.save_data(DEFAULT_JSON)
+                return DEFAULT_JSON
 
     # Save JSON data
     def save_data(self, data):
