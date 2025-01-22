@@ -73,8 +73,14 @@ def on_message(client, userdata, message):
         # TODO: Fix error with trailing }
         print(f"Error in on_message: {e}")
         print("Error in JSON formatting - trying to autocorrect...")
-        security_manager.auto_correct_json()
-        print("Auto correct is done - and hopefully works...")
+        # security_manager.auto_correct_json()
+        print("Raw payload:")
+        print(raw_payload)
+        data = security_manager.auto_correct_json_with_timeout()
+        if data:
+            print("Auto-correction succeeded.")
+        else:
+            print("Auto-correction failed or timed out.")
 
 
 # Initialize MQTT client

@@ -55,7 +55,7 @@ header {
 
 .card-header {
     font-weight: bold;
-    background-color: #007bff;
+    background-color: #b3d9ff;
     color: white;
     padding: 0.5rem;
     border-bottom: 1px solid #ddd;
@@ -74,49 +74,31 @@ header {
     border-color: #dc3545 !important;
 }
 
-/* Add to your security.css */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 34px;
-    height: 20px;
+.form-switch .form-check-input {
+    width: 3rem;
 }
 
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+/* Style the custom toggle */
+.custom-toggle {
+    width: 3rem; /* Larger width */
+    height: 1.5rem; /* Larger height */
+    border: 2px solid transparent; /* Smooth border */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Add transition for better UX */
 }
 
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 34px;
+.custom-toggle:checked {
+    background-color: #28a745 !important; /* Green for 'Active' */
+    border-color: #28a745 !important;
 }
 
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 14px;
-    width: 14px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
+.custom-toggle:not(:checked) {
+    background-color: #ffc107 !important; /* Yellow for 'Standby' */
+    border-color: #ffc107 !important;
 }
 
-input:checked + .slider {
-    background-color: #4caf50;
+/* Adjust position of the circle */
+.custom-toggle:checked::before {
+    transform: translateX(1.5rem); /* Slide to the right */
 }
 
-input:checked + .slider:before {
-    transform: translateX(14px);
-}
 

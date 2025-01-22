@@ -1,6 +1,6 @@
 import json
-import os
-from threading import Lock
+from utils import DEFAULT_JSON
+from threading import Lock, Thread
 
 
 class SecurityManager:
@@ -31,10 +31,12 @@ class SecurityManager:
     # Save JSON data
     def save_data(self, data):
         with self.data_lock:
-            temp_file_path = f"{self.file_path}.tmp"
-            with open(self.file_path, "w") as f:
-                json.dump(data, f, indent=4)
-            os.replace(temp_file_path, self.file_path)  # Atomically replace the old file
+            try:
+                with open(self.file_path, "w") as f:
+                    json.dump(data, f, indent=4)  # This ensures valid JSON formatting
+                print("Data saved successfully!")
+            except Exception as e:
+                print(f"Error saving JSON: {e}")
 
     def handle_security_packet(self, node, node_data):
         print(f"Handling security packet for node: {node}")
@@ -130,50 +132,47 @@ class SecurityManager:
         return None
 
     def auto_correct_json(self):
+        # Handle a potential corrupted file
         try:
-            with open(self.file_path, "r") as file:
-                content = file.read()
+            print("Reading raw content for manual correction...")
+            with open(self.file_path, "r") as f:
+                raw_content = f.read().strip()
+            # Replace single quotes with double quotes (only if the content is malformed)
+            raw_content = raw_content.replace("'", '"')
+            # Attempt to fix malformed JSON
+            if raw_content.endswith("}}"):
+                print("Found issue with double angle brackets.")
+                raw_content = raw_content[:-1]  # Remove the extra closing brace
 
-            # Auto-correct logic: strip extra braces or fix common issues
-            content = content.strip()
-            if content.endswith("}}"):
-                content = content[:-1]  # Remove the extra closing brace
-
-            # Try parsing again
-            return json.loads(content)
+            # Parse the corrected content
+            content = json.loads(raw_content)
+            print("Corrected JSON parsed successfully. Writing back to file...")
+            self.save_data(content)
+            print("Auto-correction successful!")
+            return True
         except Exception as e:
-            print(f"Auto-correction failed: {e}")
-            print("Falling back to default JSON.")
+            print(f"Unexpected error during manual correction: {e}")
+
+            # Fallback to default JSON structure
+            print("Falling back to default JSON...")
             self.save_data(DEFAULT_JSON)
+            return False
+
+    def auto_correct_json_with_timeout(self, timeout=5):
+        result = [None]  # Mutable object to store the result across threads
+
+        def target():
+            try:
+                result[0] = self.auto_correct_json()
+            except Exception as e:
+                print(f"Error in auto-correction thread: {e}")
+
+        thread = Thread(target=target)
+        thread.start()
+        thread.join(timeout)
+
+        if thread.is_alive():
+            print("Auto-correction timed out. Using default JSON.")
             return DEFAULT_JSON
 
-
-DEFAULT_JSON = {
-    "Node1": {
-        "on_alert": False,
-        "sensors": {
-            "security": {
-                "door": "Closed",
-                "motion": "No Motion"
-            },
-            "thermals": {
-                "temperature": 16.4
-            }
-        }
-    },
-    "Node2": {
-        "on_alert": False,
-        "sensors": {
-            "security": {
-                "door": "Closed",
-                "motion": "No Motion"
-            },
-            "thermals": None
-        }
-    },
-    "Intrusion_detected": {
-        "status": False,
-        "nodes_detected": [],
-        "reset_by_user": True
-    }
-}
+        return result[0]

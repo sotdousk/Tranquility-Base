@@ -2,3 +2,4 @@
 ./data/nodes.json
 ../WebSocketTutorial/*
 ./__pycache__/*
+__pycache__/

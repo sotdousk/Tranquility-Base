@@ -12,22 +12,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Handle individual node switches
     nodesContainer.addEventListener("change", (event) => {
-        if (event.target.classList.contains("toggle-node")) {
-            const nodeName = event.target.id.replace("toggle-", "");
-            const isOn = event.target.checked;
+        // Check if the event target is a custom toggle switch
+        if (event.target.classList.contains("custom-toggle")) {
+            const nodeName = event.target.id.replace("toggle-", ""); // Extract node name from the ID
+            const isOn = event.target.checked; // Determine the toggle state (checked or not)
 
-            // Emit update for the specific node
+            // Emit an update for the specific node through Socket.IO
             socket.emit("toggle_node", { node: nodeName, on_alert: isOn });
 
-            // Update the status field immediately in the view
+            // Immediately update the status field in the UI
             const nodeCard = document.getElementById(`node-card-${nodeName}`);
             if (nodeCard) {
                 const statusField = nodeCard.querySelector(".status");
-                statusField.textContent = isOn ? "Status: Active." : "Status: On Standby.";
-            }
+                if (statusField) {
+                    statusField.textContent = isOn ? "Status: Active." : "Status: On Standby.";
 
+                    // Add visual feedback (e.g., color change) to the status field
+                    statusField.style.color = isOn ? "green" : "gray";
+                }
+            } else {
+                console.warn(`Node card with ID 'node-card-${nodeName}' not found.`);
+            }
         }
     });
+
 
     // Handle reset button click
     resetButton.addEventListener("click", () => {

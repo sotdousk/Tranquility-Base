@@ -1,29 +1,30 @@
-{
+
+DEFAULT_JSON = {
     "Node1": {
-        "on_alert": false,
-        "sensors": {
-            "security": {
-                "door": "Open",
-                "motion": "Motion Detected"
-            },
-            "thermals": {
-                "temperature": 37.77006153649864
-            }
-        }
-    },
-    "Node2": {
-        "on_alert": false,
+        "on_alert": False,
         "sensors": {
             "security": {
                 "door": "Closed",
                 "motion": "No Motion"
             },
-            "thermals": null
+            "thermals": {
+                "temperature": 16.4
+            }
+        }
+    },
+    "Node2": {
+        "on_alert": False,
+        "sensors": {
+            "security": {
+                "door": "Closed",
+                "motion": "No Motion"
+            },
+            "thermals": None
         }
     },
     "Intrusion_detected": {
-        "status": false,
+        "status": False,
         "nodes_detected": [],
-        "reset_by_user": true
+        "reset_by_user": True
     }
 }
