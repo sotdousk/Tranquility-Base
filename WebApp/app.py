@@ -20,7 +20,7 @@ DATA_FILE = "./data/nodes.json"
 TEST_BROKER_IP = "192.168.2.5"
 BROKER = "mqtt.eclipseprojects.io"  # Replace with your broker's address
 PORT = 1883  # Default MQTT port
-TOPIC = "home/automation/#"  # Subscribe to all subtopics under 'home/automation'
+TOPIC = "home/automation/node_report/#"  # Subscribe to all subtopics under 'home/automation'
 
 
 # MQTT Callbacks

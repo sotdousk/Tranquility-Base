@@ -1,13 +1,13 @@
 {
     "Node1": {
-        "on_alert": false,
+        "on_alert": true,
         "sensors": {
             "security": {
-                "door": "Open",
-                "motion": "Motion Detected"
+                "door": "Closed",
+                "motion": "No Motion"
             },
             "thermals": {
-                "temperature": 37.77006153649864
+                "temperature": 17.77
             }
         }
     },

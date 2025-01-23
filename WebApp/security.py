@@ -124,7 +124,7 @@ class SecurityManager:
             }
         })
         # Publish the MQTT message to notify the node
-        mqtt_topic = f"home/automation/updates/on_alert/{node_name}"
+        mqtt_topic = f"home/automation/update/on_alert/{node_name}"
         self.mqtt_client.publish(mqtt_topic, payload)
         print(f"MQTT message published for {node_name}: {payload}")
 
@@ -135,7 +135,8 @@ class SecurityManager:
             self.save_data(data)
 
             # Publish the new state to MQTT
-            self.publish_synch_on_alert(node_name, on_alert)
+            self.publish_sync_on_alert(node_name, on_alert)
+            print(f"{node_name} notified successfully.")
 
             # Emit the update via Socket.IO
             self.socketio.emit('update_node', {node_name: data[node_name]})
