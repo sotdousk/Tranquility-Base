@@ -16,10 +16,6 @@ socketio = SocketIO()
 socketio.init_app(app)
 DATA_FILE = "./data/nodes.json"
 
-security_manager = SecurityManager(socketio, DATA_FILE)
-thermals_manager = ThermalManager(socketio, DATA_FILE)
-
-
 # MQTT Configuration
 TEST_BROKER_IP = "192.168.2.5"
 BROKER = "mqtt.eclipseprojects.io"  # Replace with your broker's address
@@ -71,11 +67,7 @@ def on_message(client, userdata, message):
 
     except Exception as e:
         # TODO: Fix error with trailing }
-        print(f"Error in on_message: {e}")
-        print("Error in JSON formatting - trying to autocorrect...")
-        # security_manager.auto_correct_json()
-        print("Raw payload:")
-        print(raw_payload)
+        print(f"Error in on_message: {e} - trying to autocorrect...")
         data = security_manager.auto_correct_json_with_timeout()
         if data:
             print("Auto-correction succeeded.")
@@ -91,6 +83,9 @@ mqtt_client.connect(TEST_BROKER_IP, PORT, 60)
 
 # Start the MQTT client loop in a separate thread
 mqtt_client.loop_start()
+
+security_manager = SecurityManager(socketio, mqtt_client, DATA_FILE)
+thermals_manager = ThermalManager(socketio, DATA_FILE)
 
 
 @app.route('/')

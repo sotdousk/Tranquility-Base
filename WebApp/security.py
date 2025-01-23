@@ -4,9 +4,10 @@ from threading import Lock, Thread
 
 
 class SecurityManager:
-    def __init__(self, socketio, file_path="./data/nodes.json"):
+    def __init__(self, socketio, mqtt_client, file_path="./data/nodes.json"):
         self.file_path = file_path
         self.socketio = socketio
+        self.mqtt_client = mqtt_client
         self.data_lock = Lock()
 
     # Load JSON data
@@ -115,15 +116,26 @@ class SecurityManager:
         self.socketio.emit("update_node", data)
         print(f"Intrusion reset. New state: {data['Intrusion_detected']}")
 
+    def publish_sync_on_alert(self, node_name, new_state):
+        # Prepare the MQTT payload to publish the update
+        payload = json.dumps({
+            node_name: {
+                "on_alert": new_state
+            }
+        })
+        # Publish the MQTT message to notify the node
+        mqtt_topic = f"home/automation/updates/on_alert/{node_name}"
+        self.mqtt_client.publish(mqtt_topic, payload)
+        print(f"MQTT message published for {node_name}: {payload}")
+
     def toggle_node_alert(self, node_name, on_alert):
         data = self.load_data()
         if node_name in data:
             data[node_name]["on_alert"] = on_alert
             self.save_data(data)
 
-            # TODO: Leave for now
-            # # Publish the new state to MQTT
-            # publish_synch_on_alert(node, "on_alert", data[node]["on_alert"])
+            # Publish the new state to MQTT
+            self.publish_synch_on_alert(node_name, on_alert)
 
             # Emit the update via Socket.IO
             self.socketio.emit('update_node', {node_name: data[node_name]})
