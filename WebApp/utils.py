@@ -16,8 +16,7 @@ DEFAULT_JSON = {
         "on_alert": False,
         "sensors": {
             "security": {
-                "door": "Closed",
-                "motion": "No Motion"
+                "door": "Closed"
             },
             "thermals": None
         }

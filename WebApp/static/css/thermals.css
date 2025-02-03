@@ -1,0 +1,25 @@
+.card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card-header {
+    font-weight: bold;
+    background-color: #b3d9ff;
+    color: white;
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    border-radius: 8px 8px 0 0;
+}
+
+.card-body {
+    padding: 0.75rem;
+}

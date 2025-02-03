@@ -52,7 +52,7 @@ class SecurityManager:
                 "on_alert": False,
                 "sensors": {
                     "security": {"door": "N/A", "motion": "N/A"},
-                    "thermals": {"temperature": "N/A"}
+                    "thermals": {"temperature": "N/A", "humidity": "N/A"}
                 }
             }
 

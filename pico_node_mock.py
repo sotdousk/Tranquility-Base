@@ -6,7 +6,7 @@ import random
 # MQTT Broker Configuration
 BROKER = "192.168.2.5"  # Replace with your MQTT broker address
 PORT = 1883
-TOPIC = "home/automation/update"  # Topic to publish updates
+# TOPIC = "home/automation/update"  # Topic to publish updates
 
 
 # Simulated Node Data
@@ -69,6 +69,7 @@ def send_mock_data():
         mock_data[node_name]["sensors"]["security"]["motion"] = random.choice(["Motion Detected", "No Motion"])
         mock_data[node_name]["sensors"]["security"]["door"] = random.choice(["Open", "Closed"])
 
+        TOPIC = f"home/automation/node_report/{node_name}"  # Subscribe to all subtopics under 'home/automation'
         # Prepare and send payload
         payload = json.dumps(mock_data)  # Ensure this generates valid JSON
         mock_client.publish(TOPIC, payload)

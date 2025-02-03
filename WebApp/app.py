@@ -115,7 +115,18 @@ def security():
 
 @app.route('/thermal')
 def thermal():
-    return "Thermal Comfort page under construction!"  # Replace with your thermal view template later
+    data = thermals_manager.load_data()
+
+    # Filter only thermals-related data
+    for node, details in data.items():
+        if node not in ["Intrusion_detected", "intrusion_message"]:
+            details["sensors"]['thermals'] = details["sensors"].get('thermals', {})
+
+    print("SOT")
+    print(data)
+    print("SOT")
+    return render_template("thermals.html",
+                           nodes=data)
 
 
 @app.route('/settings')

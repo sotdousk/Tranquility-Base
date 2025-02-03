@@ -13,7 +13,7 @@ class ThermalManager:
     def load_data(self):
         with self.data_lock:
             try:
-                print("Calling security load data.")
+                print("Calling thermals load data.")
                 with open(self.file_path, "r") as f:
                     print("Loading data from file")
                     data = json.load(f)
@@ -47,7 +47,7 @@ class ThermalManager:
                 "on_alert": False,
                 "sensors": {
                     "security": {"door": "N/A", "motion": "N/A"},
-                    "thermals": {"temperature": "N/A"}
+                    "thermals": {"temperature": "N/A", "humidity": "N/A"}
                 }
             }
 
