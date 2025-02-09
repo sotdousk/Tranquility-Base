@@ -71,8 +71,7 @@ class SecurityManager:
         print(f"Updated security data for node {node}")
         return
 
-    @staticmethod
-    def check_for_intrusion(data):
+    def check_for_intrusion(self, data):
         # Preserve the current reset_by_user state
         reset_by_user = data["Intrusion_detected"].get("reset_by_user", True)
         intrusion_detected = data["Intrusion_detected"].get("status", False)
