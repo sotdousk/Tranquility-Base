@@ -1,3 +1,4 @@
+import datetime
 
 DEFAULT_JSON = {
     "Node1": {
@@ -25,5 +26,28 @@ DEFAULT_JSON = {
         "status": False,
         "nodes_detected": [],
         "reset_by_user": True
+    }
+}
+
+DEFAULT_HISTORICAL_JSON = {
+    "Node1": {
+        "temperature": {
+            "timestamp": datetime.datetime.now(),
+            "values": 0.0
+        },
+        "humidity": {
+            "timestamp": datetime.datetime.now(),
+            "values": 0.0
+        }
+    },
+    "Node2": {
+        "temperature": {
+            "timestamp": datetime.datetime.now(),
+            "values": 0.0
+        },
+        "humidity": {
+            "timestamp": datetime.datetime.now(),
+            "values": 0.0
+        }
     }
 }

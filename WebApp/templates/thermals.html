@@ -31,8 +31,8 @@
                     {{ node }}
                 </div>
                 <div class="card-body">
-                    <p class="temperature">Temperature: {{ details.get('sensors', {}).get('thermals', {}).get('temperature', 'N/A') }}</p>
-                    <p class="humidity">Humidity: {{ details.get('sensors', {}).get('thermals', {}).get('humidity', 'N/A') }}</p>
+                    <p class="temperature">Temperature: {{ (details.sensors.thermals.temperature if details and details.sensors and details.sensors.thermals else 'N/A') }}</p>
+                    <p class="humidity">Humidity: {{ (details.sensors.thermals.humidity if details and details.sensors and details.sensors.thermals else 'N/A') }}</p>
                 </div>
             </div>
             {% endfor %}

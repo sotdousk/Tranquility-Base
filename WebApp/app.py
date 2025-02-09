@@ -57,9 +57,11 @@ def on_message(client, userdata, message):
             known_packet = True
             print("Call handler from security manager.")
             security_manager.handle_security_packet(node, node_data)
+            print("Security Done!")
         if "thermals" in node_data.get("sensors", {}):
             known_packet = True
             thermals_manager.handle_thermal_packet(node, node_data)
+            print("Thermals Done!")
 
         # Inform on whether the packet has been identified
         if not known_packet:

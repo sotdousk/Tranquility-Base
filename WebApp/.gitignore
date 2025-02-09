@@ -3,3 +3,4 @@
 ../WebSocketTutorial/*
 ./__pycache__/*
 __pycache__/
+/data/thermals_historical.json
