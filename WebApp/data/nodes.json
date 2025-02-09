@@ -4,10 +4,10 @@
         "sensors": {
             "security": {
                 "door": "Closed",
-                "motion": "Motion Detected"
+                "motion": "No Motion"
             },
             "thermals": {
-                "temperature": 28.42840774520826
+                "temperature": 18.42
             }
         }
     },

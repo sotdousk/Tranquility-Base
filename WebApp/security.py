@@ -1,6 +1,7 @@
 import json
 from utils import DEFAULT_JSON
 from threading import Lock, Thread
+from gpiozero import LED
 
 
 class SecurityManager:
@@ -9,6 +10,7 @@ class SecurityManager:
         self.socketio = socketio
         self.mqtt_client = mqtt_client
         self.data_lock = Lock()
+        self.alarmLED = 4
 
     # Load JSON data
     def load_data(self):
@@ -77,9 +79,6 @@ class SecurityManager:
         nodes_detected = data['Intrusion_detected'].get('nodes_detected', [])
         print(f"Current reset_by_user: {reset_by_user}")
 
-        # intrusion_detected = False
-        # nodes_detected = []
-
         # Check for intrusion
         for node_name, details in data.items():
             if node_name not in {"Intrusion_detected"} and details.get("on_alert"):
@@ -96,6 +95,9 @@ class SecurityManager:
             "nodes_detected": nodes_detected,
             "reset_by_user": reset_by_user  # Preserve the value
         }
+        
+        if data["Intrusion_detected"]["status"]:
+            self.alarmLED.on()
 
         print(f"Updated Intrusion_detected: {data['Intrusion_detected']}")
         return data
@@ -111,6 +113,9 @@ class SecurityManager:
             "nodes_detected": [],
             "reset_by_user": True  # Explicitly set to True
         }
+        
+        # Turn alarm LED off
+        self.alarmLED.off()
 
         self.save_data(data)
         self.socketio.emit("update_node", data)

@@ -124,9 +124,6 @@ def thermal():
         if node not in ["Intrusion_detected", "intrusion_message"]:
             details["sensors"]['thermals'] = details["sensors"].get('thermals', {})
 
-    print("SOT")
-    print(data)
-    print("SOT")
     return render_template("thermals.html",
                            nodes=data)
 
